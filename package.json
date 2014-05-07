@@ -1,0 +1,14 @@
+{
+  "name": "python-scraping",
+  "version": "0.0.0",
+  "description": "A presentation on web scraping with Python",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nick Stenning",
+  "license": "MIT",
+  "dependencies": {
+    "reveal.js": "^2.6.2"
+  }
+}
