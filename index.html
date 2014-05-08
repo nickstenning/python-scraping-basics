@@ -306,6 +306,64 @@ for h in headings.items():
 print("%d rows in auctions table" % len(auctions))
           </code></pre>
         </section>
+
+        <section>
+          <h2>Now what?</h2>
+          <p>
+            SPREADSHEETS.
+          </p>
+          <pre><code class="bash" data-trim>
+sqlite3 -header -csv moorings.db 'select * from auctions;' &gt; auctions.csv
+          </code></pre>
+          <div class="fragment">
+            <p>
+              SIMPLER SPREADSHEETS.
+            </p>
+            <pre><code class="bash" data-trim>
+datafreeze freezefile.yaml
+            </code></pre>
+            <pre class="fragment">
+common:
+  database: "sqlite:///moorings.db"
+  prefix: dumps/
+  format: csv
+exports:
+  - query: "SELECT id, Title, `Guide price` FROM auctions"
+    filename: "auctions.csv"
+  - query: "SELECT id, `Image URL` FROM auctions"
+    filename: "images.csv"</pre>
+          </div>
+        </section>
+
+        <section>
+          <h2>In summary</h2>
+          <ul>
+            <li>Start with a problem</li>
+            <li>Extract, Transform, Load</li>
+            <li>Idempotence! (Find the unique identifiers)</li>
+            <li>Lots of libraries to help you: <code>dataset</code>, <code>pyquery</code>, <code>requests</code></li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>I haven't even mentioned...</h2>
+          <ul>
+            <li>Data types ("GBP35,292 inc VAT per year" is not a number!)</li>
+            <li>Page navigation (<a href="http://wwwsearch.sourceforge.net/mechanize/"><code>mechanize</code></a>)</li>
+            <li>Parallelism, AKA "multithreading" (<a href="https://github.com/pudo/thready"><code>thready</code></a>)</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Resources</h2>
+          <ul>
+            <li><a href="http://docs.python-requests.org/en/latest/"><code>requests</code></a>: HTTP client (get page contents)</li>
+            <li><a href="http://pythonhosted.org/pyquery/"><code>pyquery</code></a>: find stuff using CSS selectors (jQuery for Python)</li>
+            <li><a href="https://dataset.readthedocs.org/en/latest/"><code>dataset</code></a>: shove stuff into a database without thinking</li>
+            <li><a href="http://wwwsearch.sourceforge.net/mechanize/"><code>mechanize</code></a>: click on links, fill in forms</li>
+            <li><a href="http://scrapy.org/"><code>scrapy</code></a>: everything!</li>
+          </ul>
+        </section>
       </div>
     </div>
 

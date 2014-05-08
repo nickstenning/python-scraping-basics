@@ -1,0 +1,18 @@
+common:
+
+  database: "sqlite:///moorings.db"
+  prefix: dumps/
+  format: csv
+
+exports:
+
+  - query: "SELECT id, `Mooring type`, `Estimated Closing date`, `Title`, `Reserve price`, `Guide price` FROM auctions"
+    filename: "auctions.csv"
+
+  - query: "SELECT id, `Image URL` FROM auctions"
+    filename: "images.csv"
+
+  - query: "SELECT * FROM auctions"
+    filename: "auctions/{{id}}.json"
+    format: json
+    mode: item
