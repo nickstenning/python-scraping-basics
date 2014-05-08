@@ -380,8 +380,16 @@ exports:
         history: true,
         center: true,
 
+        multiplex: {
+          secret: null,
+          id: '2bec98b60f111d52',
+          url: 'revealjs.jit.su:443'
+        },
+
         dependencies: [
           { src: 'node_modules/reveal.js/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+          { src: '//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.10/socket.io.min.js', async: true },
+          { src: 'node_modules/reveal.js/plugin/multiplex/client.js', async: true }
         ]
       });
 
