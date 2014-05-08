@@ -57,12 +57,196 @@
         </section>
 
         <section>
+          <img src="img/crt.png" alt="A screenshot of the Canal and River Trust mooring auction website">
+        </section>
+
+        <section>
+          <h2>Start with a problem</h2>
+          <p>Are there any new mooring auctions that match my criteria?</p>
+          <p class="fragment">
+            How many rulings does the Federal Constitutional Court of Germany
+            make each year?
+          </p>
+        </section>
+
+        <section>
+          <img src="img/bvg-decisions.png" alt="A screenshot of the Bundesverfassungsgericht website">
+        </section>
+
+        <section>
+          <h2>Solutions</h2>
+          <ol>
+            <li>visit each page</li>
+            <li>copy information into a spreadsheet</li>
+            <li>review against criteria/analyse</li>
+          </ol>
+          <p>
+            <br>
+            We could do this all by hand&hellip; <em>or</em> we could use some
+            kind of device that's really good at boring, repetitive drudge
+            work...
+          </p>
+        </section>
+
+        <section>
           <h2>Scraping</h2>
           <p>It sounds messy.</p>
           <p>It <strong>is</strong> messy.</p>
+          <p class="fragment">But it can be beautiful.</p>
         </section>
-      </div>
 
+        <section>
+          <h2>Scraping steps</h2>
+          <ol>
+            <li>Extract</li>
+            <li>Transform</li>
+            <li>Load</li>
+          </ol>
+        </section>
+
+        <section>
+          <h2>Extract</h2>
+          <pre><code class="python" data-trim>
+import requests
+import pyquery
+
+# Extract
+response = requests.get("https://www.crtmoorings.com/auctions/search.php")
+document = pyquery.PyQuery(response.content)
+
+# Transform
+headings = document.find("h3.vacancy_summary")
+for h in headings.items():
+    print h.text()
+          </code></pre>
+          <pre class="fragment">
+Auction: 6261 - Torksey Lock, Fossdyke Navigation
+Auction: 6286 - Napton Bottom Lock, Oxford Canal
+Auction: 6273 - Netherwich Basin, Droitwich Barge Canal
+Auction: 5915 - Engineers Wharf Residential , Paddington Arm.
+...
+          </pre>
+        </section>
+
+        <section>
+          <section>
+            <h2>Transform</h2>
+            <pre><code class="python" data-trim>
+import requests
+import pyquery
+
+# Extract
+response = requests.get("https://www.crtmoorings.com/auctions/search.php")
+document = pyquery.PyQuery(response.content)
+
+# Transform
+prices = document.find(".vacancy_details + .vacancy_details p:nth-child(1)")
+for p in prices.items():
+    print p.text()
+          </code></pre>
+          <pre class="fragment">
+Guide price: £821 inc VAT per year
+Guide price: £1,857 inc VAT per year
+Guide price: £649 inc VAT per year
+Guide price: £5,880 inc VAT per year
+...
+          </pre>
+          </section>
+
+          <section>
+            <h2>A trade secret</h2>
+            <p><a href='http://selectorgadget.com/'>SelectorGadget</a></p>
+            <img height="500" src="img/selectorgadget.gif" alt="An animated image showing SelectorGadget narrowing down a selection on a page">
+          </section>
+        </section>
+
+        <section>
+          <h2>Transform (II)</h2>
+          <pre><code class="python" data-trim>
+import json
+
+import requests
+import pyquery
+
+...
+
+# Extract
+response = requests.get("https://www.crtmoorings.com/auctions/search.php")
+document = pyquery.PyQuery(response.content)
+
+# Transform
+headings = document.find("h3.vacancy_summary")
+for h in headings.items():
+    mooring = get_mooring_details(h)
+    print json.dumps(mooring, indent=2)
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>Transform (III)</h2>
+          <img src="img/inspector.png" alt="Screenshot showing use of Chrome web inspector to look at source code">
+        </section>
+
+        <section>
+          <h2>Transform (IV)</h2>
+          <pre><code class="python" data-trim>
+def get_mooring_details(heading):
+    details = heading.next()
+    mooring = {}
+    mooring["Title"] = heading.text()
+    mooring["Image URL"] = details(".vacancy_main_img a img").attr("src")
+
+    # For each paragraph element in the vacancy_details divs
+    for d in details.find(".vacancy_details p").items():
+        # If the paragraph element has a child "strong" element
+        if d.find("strong").length > 0:
+            # Split the text on the first colon
+            key, val = d.text().split(":", 1)
+            # Trim any whitespace
+            key, val = key.strip(), val.strip()
+            # Put the details in the dict
+            mooring[key] = val
+
+    return mooring
+          </code></pre>
+          <pre class="fragment">
+    {
+  "Number of online views": "176",
+  "Maximum length": "18.5m / 60.70ft berth",
+  "Title": "Auction: 6278 - Market Harborough Basin, Grand Union Canal",
+  "Bids received": "0",
+...
+          </pre>
+        </section>
+
+        <section>
+          <h2>Load</h2>
+          <pre><code class="python" data-trim>
+import dataset
+
+...
+
+engine = dataset.connect('sqlite:///moorings.db')
+auctions = engine['auctions']
+
+# Extract
+response = requests.get("https://www.crtmoorings.com/auctions/search.php")
+document = pyquery.PyQuery(response.content)
+
+# Transform
+headings = document.find("h3.vacancy_summary")
+for h in headings.items():
+    mooring = get_mooring_details(h)
+
+    # Load
+    auctions.insert(mooring)
+
+# Confirm what we've got
+print("%d rows in auctions table" % len(auctions))
+          </code></pre>
+        </section>
+
+      </div>
     </div>
 
     <script src="node_modules/reveal.js/lib/js/head.min.js"></script>
@@ -78,21 +262,8 @@
         history: true,
         center: true,
 
-        theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
-        transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
-
-        // Parallax scrolling
-        // parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
-        // parallaxBackgroundSize: '2100px 900px',
-
-        // Optional libraries used to extend on reveal.js
         dependencies: [
-          { src: 'node_modules/reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
-          { src: 'node_modules/reveal.js/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
-          { src: 'node_modules/reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
           { src: 'node_modules/reveal.js/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
-          { src: 'node_modules/reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
-          { src: 'node_modules/reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
         ]
       });
 
