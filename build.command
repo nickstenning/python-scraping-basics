@@ -6,7 +6,7 @@ cd "$(dirname "$0")"
 
 needs_sudo () {
   site_packages=$(python -c 'import site; print site.getsitepackages()[0]')
-  test -w "$site_packages"
+  test ! -w "$site_packages"
 }
 
 maybe_sudo () {
