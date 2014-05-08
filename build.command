@@ -30,4 +30,7 @@ virtualenv pyenv
 export VIRTUAL_ENV="$PWD/pyenv"
 export PATH="$VIRTUAL_ENV/bin:$PATH"
 unset PYTHON_HOME
+
+# Fuck you, clang
+export ARCHFLAGS=-Wno-error=unused-command-line-argument-hard-error-in-future
 pip install -r requirements.txt
