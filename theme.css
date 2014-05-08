@@ -139,3 +139,6 @@ body {
  *********************************************/
 .reveal .slide-number {
   color: #268bd2; }
+
+.reveal pre code {
+  max-height: 500px; }
