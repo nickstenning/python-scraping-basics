@@ -1,5 +1,9 @@
 #!/bin/sh
 
+set -eu
+
+cd "$(dirname "$0")"
+
 needs_sudo () {
   site_packages=$(python -c 'import site; print site.getsitepackages()[0]')
   test -w "$site_packages"
