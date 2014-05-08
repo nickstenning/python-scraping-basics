@@ -27,5 +27,7 @@ if ! which virtualenv >/dev/null 2>&2; then
 fi
 
 virtualenv pyenv
-. pyenv/bin/activate
+export VIRTUAL_ENV="$PWD/pyenv"
+export PATH="$VIRTUAL_ENV/bin:$PATH"
+unset PYTHON_HOME
 pip install -r requirements.txt
