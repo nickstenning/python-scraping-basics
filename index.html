@@ -246,6 +246,66 @@ print("%d rows in auctions table" % len(auctions))
           </code></pre>
         </section>
 
+        <section>
+          <h2>Idempotence</h2>
+          <blockquote>
+            <p>
+            Idempotent (/i.dɨmˈpoʊtənt/ ih-dəm-poh-tənt)
+            </p>
+            <p>
+              adj., describing an action which, when performed multiple times, has
+              no further effect on its subject after the first time it is
+              performed.
+            </p>
+          </blockquote>
+        </section>
+
+        <section>
+          <h2>Idempotence (II)</h2>
+          <p>
+            You can make a scraping operation idempotent if you can tell if two
+            things are the same as one another.
+          </p>
+          <p>
+            Idempotence is usually about finding <em>unique identifiers</em>.
+            <br>
+            <br>
+          </p>
+          <pre class="fragment">
+Auction: <strong style="color: #f00">6261</strong> - Torksey Lock, Fossdyke Navigation
+Auction: <strong style="color: #f00">6286</strong> - Napton Bottom Lock, Oxford Canal
+Auction: <strong style="color: #f00">6273</strong> - Netherwich Basin, Droitwich Barge Canal
+...
+          </pre>
+        </section>
+
+        <section>
+          <h2>Load (II)</h2>
+          <pre>
+<code class="python faded" data-trim>
+def get_mooring_details(heading):
+    ...
+</code></pre><pre><code class="python">
+    id_match = re.match(r'Auction: (\d+)', mooring["Title"])
+    mooring["id"] = int(id_match.group(1))
+
+</code></pre><pre><code class="python faded">    return mooring
+
+...
+
+# Transform
+headings = document.find("h3.vacancy_summary")
+for h in headings.items():
+    mooring = get_mooring_details(h)
+</code></pre><pre><code class="python">
+    # Load
+    auctions.upsert(mooring, ["id"])
+
+</code></pre><pre><code class="python faded" data-trim>
+# Confirm what we've got
+print("%d rows in auctions table" % len(auctions))
+          </code></pre>
+        </section>
       </div>
     </div>
 
